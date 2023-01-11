@@ -15,7 +15,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
@@ -42,7 +41,6 @@ STATUS_NOT_CHANGED = 'Отсутствие в ответе новых стату
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-
     tokens = [
         PRACTICUM_TOKEN,
         TELEGRAM_TOKEN,
@@ -53,7 +51,6 @@ def check_tokens():
 
 def send_message(bot, message):
     """Отправляет сообщение в Telegram чат."""
-
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
     except Exception:
@@ -65,7 +62,6 @@ def send_message(bot, message):
 
 def get_api_answer(timestamp):
     """Делает запрос к единственному эндпоинту API-сервиса."""
-
     try:
         params = {'from_date': timestamp}
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
@@ -82,7 +78,6 @@ def get_api_answer(timestamp):
 
 def check_response(response):
     """Проверяет ответ API на соответствие документации."""
-
     try:
         list_works = response['homeworks']
     except KeyError as error:
@@ -103,7 +98,6 @@ def check_response(response):
 
 def parse_status(homework):
     """Извлекает из информации о домашней работе статус этой работы."""
-
     if 'homework_name' not in homework:
         logging.error(KEYS_NOT_FOUND)
         raise KeyError(KEYS_NOT_FOUND)
@@ -119,7 +113,6 @@ def parse_status(homework):
 
 def main():
     """Основная логика работы бота."""
-
     if not check_tokens():
         logging.critical(VAR_NOT_FOUND)
         raise VarNotFoundException(VAR_NOT_FOUND)
