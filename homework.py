@@ -1,17 +1,19 @@
-from exceptions import (VarNotFoundException,
-                        MessageNotSentException,
-                        EndpointHttpException,
-                        StatusNotFound)
-
-import os
 import logging
-import telegram
+import os
+import sys
 import time
-import requests
 from http import HTTPStatus
 from logging.handlers import RotatingFileHandler
 
+import requests
+import telegram
 from dotenv import load_dotenv
+
+from exceptions import (
+    MessageNotSentException,
+    EndpointHttpException,
+    StatusNotFound
+)
 
 load_dotenv()
 
@@ -41,12 +43,11 @@ STATUS_NOT_CHANGED = 'Отсутствие в ответе новых стату
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-    tokens = [
+    return all([
         PRACTICUM_TOKEN,
         TELEGRAM_TOKEN,
         TELEGRAM_CHAT_ID
-    ]
-    return (all(tokens))
+    ])
 
 
 def send_message(bot, message):
@@ -73,7 +74,11 @@ def get_api_answer(timestamp):
     if response_status != HTTPStatus.OK:
         logging.error(ENDPOINT_ERROR)
         raise EndpointHttpException(ENDPOINT_ERROR)
-    return response.json()
+
+    try:
+        return response.json()
+    except Exception:
+        raise TypeError(f'Ответ не преобразован в json: {TypeError}')
 
 
 def check_response(response):
@@ -115,7 +120,8 @@ def main():
     """Основная логика работы бота."""
     if not check_tokens():
         logging.critical(VAR_NOT_FOUND)
-        raise VarNotFoundException(VAR_NOT_FOUND)
+        sys.exit(VAR_NOT_FOUND)
+
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     timestamp = int(time.time())
 
@@ -130,12 +136,15 @@ def main():
 
     while True:
         try:
-
             response = get_api_answer(timestamp)
             homework = check_response(response)
             message = parse_status(homework)
-            send_message(bot, message)
-
+            old_status = ''
+            if message != old_status:
+                send_message(bot, message)
+            logging.debug(STATUS_NOT_CHANGED)
+        except MessageNotSentException:
+            raise MessageNotSentException(MESSAGE_NOT_SENT)
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(bot, message)

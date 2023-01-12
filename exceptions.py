@@ -1,8 +1,3 @@
-class VarNotFoundException(Exception):
-    """Отсутствие обязательных переменных окружения во время запуска бота."""
-    pass
-
-
 class MessageNotSentException(Exception):
     """Сбой при отправке сообщения в Telegram."""
     pass
