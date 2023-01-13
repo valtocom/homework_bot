@@ -139,10 +139,10 @@ def main():
             response = get_api_answer(timestamp)
             homework = check_response(response)
             message = parse_status(homework)
-            old_status = ''
-            if message != old_status:
+            if message != '':
                 send_message(bot, message)
-            logging.debug(STATUS_NOT_CHANGED)
+            else:
+                logging.debug(STATUS_NOT_CHANGED)
         except MessageNotSentException:
             raise MessageNotSentException(MESSAGE_NOT_SENT)
         except Exception as error:
